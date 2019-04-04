@@ -61,53 +61,70 @@ for state_link in crawl_links:
     # print (type(state_page_soup))
 STATES_DICT = {}
 state_dict = {}
-state_list = []
+STATE_SITE_LIST = []
 
-for state in topics_pages:
+for state_page in topics_pages:
+    if count >= 56:
+        break
     # state = BeautifulSoup(state, features="html.parser")
 
-    if count >= 3:
-        break
     else:
-        # print (type(state))
-        # print (state.prettify())
-        target_li = state.find_all('div',{'class':'col-md-9 col-sm-9 col-xs-12 table-cell list_left'})
-        for li in target_li:
-            # print ("*********\n")
-            # print (li)
-            # print ("*********\n")
+        print ("****************new state\n")
+        # print(state_page)
+        national_sites_divs = state_page.find_all('div',{'class':'col-md-9 col-sm-9 col-xs-12 table-cell list_left'})
 
-            # print("getting tag text")
-            # print ("*********\n")
+        # Loop through the target div elements and grab site name, type, discription, and location
 
-            site_name = li.find("h3").text
-            site_type = li.find("h2").text
-            site_discription = li.find("p").text.strip( '\n' )
-            # print (site_discription)
-            site_location = li.find("h4").text
+        for div in national_sites_divs:
+            local_list = []
+            site_name = div.find("h3").text
+            site_type = div.find("h2").text
+            site_discription = div.find("p").text.strip('\n')
+            site_location = div.find("h4").text
 
-            # create a list of site info and add list to overall state list.
-            # print("creating list with site info")
-            list = [site_name, site_type, site_discription, site_location]
-
-            # print ("adding list to mega list")
-            state_list.append(list)
-
-            # add state to state dict, where key is state and value is list of all site info
-        current_state = sorted_list_of_state_names[count]
-        STATES_DICT[current_state] = state_list
-
-        count += 1
+            # create a local_list containing the above site info
+            local_list = [site_name,site_location, site_type, site_discription]
+            STATE_SITE_LIST.append(local_list)
+    current_state = sorted_list_of_state_names[count]
+    # STATES_DICT[current_state] = state_list
+    count += 1
 
 
 
-print (STATES_DICT)
+# print (STATE_LIST)
 
 
+with open ("some_file.csv", "w") as fh:
+    writer = csv.writer(fh)
+    header = ["Site Name","Site Location","Site Type", "Site discription"]
+    writer.writerow(header)
+    count = 0
+    for site in STATE_SITE_LIST:
+        # print (len(STATE_SITE_LIST))
+        # print (type(STATE_SITE_LIST))
+        # print (len(site))
+        # print (site[0])
+        s_name = site[0]
+        s_location = site[1]
+        print (type(s_location))
+        s_type = site[2]
+        s_discription = site[3]
+        row = [s_name,s_location, s_type, s_discription]
+        writer.writerow(row)
 
-with open ("some_file.json", "w") as fh:
-    json_object = json.dumps(STATES_DICT)
-    fh.write(json_object)
+        # if count >=1:
+        #     break
+        # else:
+        #     count +=1
+        #     print (STATE_SITE_LIST[0])
+        #     for site in state:
+        #         print (site)
+        #         print (len(state))
+        #         print (type(site))
+        #
+        #         print ("***********")
+
+
 #
 
 ##extracting urls found within pages
