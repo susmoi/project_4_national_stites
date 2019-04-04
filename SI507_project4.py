@@ -32,13 +32,13 @@ main_page = scrape_function(START_URL)
 main_soup = BeautifulSoup(main_page, features="html.parser")
 ul_states = main_soup.find("ul",{"class":"dropdown-menu"})
 
-# print (list_of_states)
 ul_links = ul_states.find_all('a')
 
 list_of_state_names = []
 for href in ul_links:
      list_of_state_names.append(href.text)
 
+sorted_list_of_state_names = sorted(list_of_state_names)
 crawl_links = []
 
 for item in ul_links:
@@ -60,53 +60,54 @@ for state_link in crawl_links:
     topics_pages.append(state_page_soup)
     # print (type(state_page_soup))
 STATES_DICT = {}
+state_dict = {}
+state_list = []
 
 for state in topics_pages:
     # state = BeautifulSoup(state, features="html.parser")
-    count += 1
-    if count >= 70:
+
+    if count >= 3:
         break
     else:
         # print (type(state))
         # print (state.prettify())
-        target_li = state.find_all('li',{'class':'clearfix'})
+        target_li = state.find_all('div',{'class':'col-md-9 col-sm-9 col-xs-12 table-cell list_left'})
         for li in target_li:
-            try:
-                state_dict = {}
-                site_name = li.find("h3").text
-                site_type = li.find("h2").text
-                site_discription = li.find("p").text.strip( '\n' )
-                # print (site_discription)
-                site_location = li.find("h4").text
+            # print ("*********\n")
+            # print (li)
+            # print ("*********\n")
 
-                state_list = [site_name, site_type, site_discription, site_location]
-                state_dict[site_location] = state_list
-                STATES_DICT[site_location] = state_dict
-            except:
-                ("NONE TYPE")
+            # print("getting tag text")
+            # print ("*********\n")
 
-        # find('li',{'class':'clearfix'})
+            site_name = li.find("h3").text
+            site_type = li.find("h2").text
+            site_discription = li.find("p").text.strip( '\n' )
+            # print (site_discription)
+            site_location = li.find("h4").text
 
-# print (STATES_DICT)
+            # create a list of site info and add list to overall state list.
+            # print("creating list with site info")
+            list = [site_name, site_type, site_discription, site_location]
+
+            # print ("adding list to mega list")
+            state_list.append(list)
+
+            # add state to state dict, where key is state and value is list of all site info
+        current_state = sorted_list_of_state_names[count]
+        STATES_DICT[current_state] = state_list
+
+        count += 1
+
+
+
+print (STATES_DICT)
+
+
 
 with open ("some_file.json", "w") as fh:
     json_object = json.dumps(STATES_DICT)
     fh.write(json_object)
-# print (topics_pages[0].prettify())
-# for soup in topics_pages[0]:
-#     soup = soup.prettify()
-#     for park_list in soup.find("ul"):
-#
-#         print(type(park_list))
-
-    # print (soup.prettify().find(id="list_parks"))
-
-# tags = state_page_soup.find_all('li',{'class':'clearfix'})
-# for tag in tags:
-#     # print (type(tag))
-#
-#     if count >= 1:
-#         break
 #
 
 ##extracting urls found within pages
