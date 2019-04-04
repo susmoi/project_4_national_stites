@@ -50,27 +50,64 @@ for item in ul_links:
 count = 0
 state_csv = "state_csv_file.csv"
 state_dict = {}
+topics_pages = []
 
 for state_link in crawl_links:
-    count += 1
-    print (state_link)
+
+    # print (state_link)
     page_data = scrape_function(state_link)
     state_page_soup = BeautifulSoup(page_data, features="html.parser")
-    # print (state_page_soup)
-    tags = state_page_soup.find_all('li',{'class':'clearfix'})
-    print (tags)
-    # site_name = tag.find("h3").text
-    # site_type = tag.find("h2").text
-    # site_discription = tag.find("p").text.strip( '\n' )
-    # site_location = tag.find("h4").text
-    #
-    # state_list = [site_name, site_type, site_discription, site_location]
-    # state_dict[site_location] = state_list
+    topics_pages.append(state_page_soup)
+    # print (type(state_page_soup))
+STATES_DICT = {}
 
-
-    if count >= 1:
+for state in topics_pages:
+    # state = BeautifulSoup(state, features="html.parser")
+    count += 1
+    if count >= 70:
         break
-# print (state_dict)
+    else:
+        # print (type(state))
+        # print (state.prettify())
+        target_li = state.find_all('li',{'class':'clearfix'})
+        for li in target_li:
+            try:
+                state_dict = {}
+                site_name = li.find("h3").text
+                site_type = li.find("h2").text
+                site_discription = li.find("p").text.strip( '\n' )
+                # print (site_discription)
+                site_location = li.find("h4").text
+
+                state_list = [site_name, site_type, site_discription, site_location]
+                state_dict[site_location] = state_list
+                STATES_DICT[site_location] = state_dict
+            except:
+                ("NONE TYPE")
+
+        # find('li',{'class':'clearfix'})
+
+# print (STATES_DICT)
+
+with open ("some_file.json", "w") as fh:
+    json_object = json.dumps(STATES_DICT)
+    fh.write(json_object)
+# print (topics_pages[0].prettify())
+# for soup in topics_pages[0]:
+#     soup = soup.prettify()
+#     for park_list in soup.find("ul"):
+#
+#         print(type(park_list))
+
+    # print (soup.prettify().find(id="list_parks"))
+
+# tags = state_page_soup.find_all('li',{'class':'clearfix'})
+# for tag in tags:
+#     # print (type(tag))
+#
+#     if count >= 1:
+#         break
+#
 
 ##extracting urls found within pages
 # for link in soup.find_all('a'):
