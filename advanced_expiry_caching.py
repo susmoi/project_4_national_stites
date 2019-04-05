@@ -12,12 +12,12 @@ class Cache:
         """Load cache from disk, if present"""
         self.filename = filename
         try:
-            print ("Step 0: opening file in cache_diction")
+            # print ("Step 0: opening file in cache_diction")
             with open(self.filename, 'r') as cache_file:
                 cache_json = cache_file.read()
                 self.cache_diction = json.loads(cache_json)
         except:
-            print ("1st Step: creating cache_diction")
+            # print ("1st Step: creating cache_diction")
             self.cache_diction = {}
 
     def _save_to_disk(self):
@@ -57,26 +57,26 @@ class Cache:
                 # also remove old copy from cache
                 del self.cache_diction[identifier]
                 self._save_to_disk()
-                print ("saving to disk")
+                # print ("saving to disk")
                 data = None
             else:
-                print ("getting data")
+                # print ("getting data")
                 data = data_assoc_dict['values']
         else:
-            print ("no data")
+            # print ("no data")
             data = None
         return data
 
     def set(self, identifier, data, expire_in_days=7):
         """Add identifier and its associated values (literal data) to the cache, and save the cache as json"""
 
-        print ("2nd Step: making unique id from URL")
+        # print ("2nd Step: making unique id from URL")
         identifier = identifier.upper() # make unique
-        print("3rd Step: setting data inside of cache_diction")
+        # print("3rd Step: setting data inside of cache_diction")
         self.cache_diction[identifier] = {
             'values': data,
             'timestamp': datetime.now().strftime(DATETIME_FORMAT),
             'expire_in_days': expire_in_days
         }
-        print ("4th Step: saving to disk")
+        # print ("4th Step: saving to disk")
         self._save_to_disk()
