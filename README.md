@@ -2,7 +2,7 @@
 
 ## Elizabeth Brown
 
-#What it Does
+# What it Does
 Scrapes all the state links from the main page of the nation parks website.
 
 Creates multiple BeautifulSoup instances and caches them in a JSON file.
