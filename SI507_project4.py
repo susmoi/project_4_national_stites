@@ -69,7 +69,7 @@ def web_crawler(some_list):
 state_site_info_list = web_crawler(crawl_list)
 
 # writes a new csv file using site info list
-with open ("National_Site_CSV.csv", "w", newline="") as fh:
+with open ("National_Sites.csv", "w", newline="") as fh:
     writer = csv.writer(fh)
     header = ["Site Name","Site Location","Site Type", "Site discription"]
     writer.writerow(header)
