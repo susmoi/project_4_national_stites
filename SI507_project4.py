@@ -5,15 +5,6 @@ import csv
 
 from advanced_expiry_caching import Cache
 
-#scrapy scraping libray
-
-#Code for scraping data from national websites
-##NAME of site
-##TYPE of site
-##DESCRIPTION of site
-##LOCATION (in any form Richmond; Richmond, VA; VA)
-##CHALLENGE standarize state names
-
 #Constants
 FNAME = "national_sites_cache.json"
 START_URL = "https://www.nps.gov"
@@ -44,7 +35,6 @@ crawl_links = []
 for item in ul_links:
     link = "{}{}".format(START_URL, item.get("href"))
     crawl_links.append(link)
-# print(crawl_links)
 
 # Need to scrape each state link for national sites.
 count = 0
@@ -53,12 +43,10 @@ state_dict = {}
 topics_pages = []
 
 for state_link in crawl_links:
-
-    # print (state_link)
     page_data = scrape_function(state_link)
     state_page_soup = BeautifulSoup(page_data, features="html.parser")
     topics_pages.append(state_page_soup)
-    # print (type(state_page_soup))
+
 STATES_DICT = {}
 state_dict = {}
 STATE_SITE_LIST = []
@@ -66,8 +54,6 @@ STATE_SITE_LIST = []
 for state_page in topics_pages:
     if count >= 56:
         break
-    # state = BeautifulSoup(state, features="html.parser")
-
     else:
         print ("****************new state\n")
         # print(state_page)
@@ -89,12 +75,7 @@ for state_page in topics_pages:
     # STATES_DICT[current_state] = state_list
     count += 1
 
-
-
-# print (STATE_LIST)
-
-
-with open ("some_file.csv", "w") as fh:
+with open ("National_Site_CSV.csv", "w", newline="") as fh:
     writer = csv.writer(fh)
     header = ["Site Name","Site Location","Site Type", "Site discription"]
     writer.writerow(header)
@@ -104,7 +85,7 @@ with open ("some_file.csv", "w") as fh:
         # print (type(STATE_SITE_LIST))
         # print (len(site))
         # print (site[0])
-        s_name = site[0]
+        s_name = site[0].upper()
         s_location = site[1]
         print (type(s_location))
         s_type = site[2]
@@ -112,20 +93,6 @@ with open ("some_file.csv", "w") as fh:
         row = [s_name,s_location, s_type, s_discription]
         writer.writerow(row)
 
-        # if count >=1:
-        #     break
-        # else:
-        #     count +=1
-        #     print (STATE_SITE_LIST[0])
-        #     for site in state:
-        #         print (site)
-        #         print (len(state))
-        #         print (type(site))
-        #
-        #         print ("***********")
-
-
-#
 
 ##extracting urls found within pages
 # for link in soup.find_all('a'):
