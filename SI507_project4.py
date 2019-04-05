@@ -11,6 +11,7 @@ START_URL = "https://www.nps.gov"
 
 PROGRAM_CACHE = Cache(FNAME)
 
+# Function which either gets data from cache or creates new get request, then returns data
 def scrape_function(some_url):
     data = PROGRAM_CACHE.get_data(some_url)
     if not data:
@@ -20,47 +21,38 @@ def scrape_function(some_url):
 
 main_page = scrape_function(START_URL)
 
+# create a BeautifulSoup object from returned data
 main_soup = BeautifulSoup(main_page, features="html.parser")
+#  find state list
 ul_states = main_soup.find("ul",{"class":"dropdown-menu"})
+# extract "a" tags from list
+anchor_tags = ul_states.find_all('a')
 
-ul_links = ul_states.find_all('a')
+# creates a list of "a" tag links for crawling
+crawl_list = []
+for a in anchor_tags:
+    link = "{}{}".format(START_URL, a.get("href"))
+    crawl_list.append(link)
 
-list_of_state_names = []
-for href in ul_links:
-     list_of_state_names.append(href.text)
+# web crawling Function
+def web_crawler(some_list):
+    count = 0
+    list_of_BS_objects = []
 
-sorted_list_of_state_names = sorted(list_of_state_names)
-crawl_links = []
+    # Loops thorugh list scraping each link and creating a BeautifulSoup object and appending the object to a list
+    for link in some_list:
+        page_data = scrape_function(link)
+        page_soup = BeautifulSoup(page_data, features="html.parser")
+        list_of_BS_objects.append(page_soup)
 
-for item in ul_links:
-    link = "{}{}".format(START_URL, item.get("href"))
-    crawl_links.append(link)
+    STATES_DICT = {}
+    SITE_LIST = []
 
-# Need to scrape each state link for national sites.
-count = 0
-state_csv = "state_csv_file.csv"
-state_dict = {}
-topics_pages = []
+    # for each soup object, finds div with site info
+    for soup in list_of_BS_objects:
+        national_sites_divs = soup.find_all('div',{'class':'col-md-9 col-sm-9 col-xs-12 table-cell list_left'})
 
-for state_link in crawl_links:
-    page_data = scrape_function(state_link)
-    state_page_soup = BeautifulSoup(page_data, features="html.parser")
-    topics_pages.append(state_page_soup)
-
-STATES_DICT = {}
-state_dict = {}
-STATE_SITE_LIST = []
-
-for state_page in topics_pages:
-    if count >= 56:
-        break
-    else:
-        print ("****************new state\n")
-        # print(state_page)
-        national_sites_divs = state_page.find_all('div',{'class':'col-md-9 col-sm-9 col-xs-12 table-cell list_left'})
-
-        # Loop through the target div elements and grab site name, type, discription, and location
-
+        # Loops through the target div elements and grab site name, type, discription, and location
         for div in national_sites_divs:
             local_list = []
             site_name = div.find("h3").text
@@ -68,39 +60,24 @@ for state_page in topics_pages:
             site_discription = div.find("p").text.strip('\n')
             site_location = div.find("h4").text
 
-            # create a local_list containing the above site info
+            # creates a local_list containing the above site info
             local_list = [site_name,site_location, site_type, site_discription]
-            STATE_SITE_LIST.append(local_list)
-    current_state = sorted_list_of_state_names[count]
-    # STATES_DICT[current_state] = state_list
-    count += 1
+            SITE_LIST.append(local_list)
+    return SITE_LIST
 
+# run function
+state_site_info_list = web_crawler(crawl_list)
+
+# writes a new csv file using site info list
 with open ("National_Site_CSV.csv", "w", newline="") as fh:
     writer = csv.writer(fh)
     header = ["Site Name","Site Location","Site Type", "Site discription"]
     writer.writerow(header)
     count = 0
-    for site in STATE_SITE_LIST:
-        # print (len(STATE_SITE_LIST))
-        # print (type(STATE_SITE_LIST))
-        # print (len(site))
-        # print (site[0])
+    for site in state_site_info_list:
         s_name = site[0].upper()
         s_location = site[1]
-        print (type(s_location))
         s_type = site[2]
         s_discription = site[3]
         row = [s_name,s_location, s_type, s_discription]
         writer.writerow(row)
-
-
-##extracting urls found within pages
-# for link in soup.find_all('a'):
-#     print(link.get('href'))
-# http://example.com/elsie
-# http://example.com/lacie
-# http://example.com/tillie
-
-##1 row = 1 national site
-
-#Code for caching data on json file
